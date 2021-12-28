@@ -22,6 +22,12 @@ protected:
 	void MoveForward(float Value);
 
 	void MoveRight(float Value);
+	
+	void BeginCrouch();
+	
+	void EndCrouch();
+
+	void Jump();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components" )	// We can only edit already created component, we cant assign new one in Blueprint
 	class UCameraComponent* CameraComp;

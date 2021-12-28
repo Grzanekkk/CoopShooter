@@ -3,6 +3,7 @@
 
 #include "SCharacter.h"
 #include "Camera/CameraComponent.h"
+#include "GameFramework/PawnMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
 
@@ -18,7 +19,6 @@ ASCharacter::ASCharacter()
 	
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraCompontent"));
 	CameraComp->SetupAttachment(SpringArmComp);
-
 	
 }
 
@@ -26,7 +26,8 @@ ASCharacter::ASCharacter()
 void ASCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true;
 }
 
 
@@ -39,6 +40,21 @@ void ASCharacter::MoveForward(float Value)
 void ASCharacter::MoveRight(float Value)
 {
 	AddMovementInput(GetActorRightVector() * Value);
+}
+
+void ASCharacter::BeginCrouch()
+{
+	Crouch();
+}
+
+void ASCharacter::EndCrouch()
+{
+	UnCrouch();
+}
+
+void ASCharacter::Jump()
+{
+	Super::Jump();
 }
 
 
@@ -60,4 +76,9 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 	PlayerInputComponent->BindAxis("LookUp", this, &ASCharacter::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookRight", this, &ASCharacter::AddControllerYawInput);
+
+	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ASCharacter::BeginCrouch);
+	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ASCharacter::EndCrouch);
+
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ASCharacter::Jump);
 }
