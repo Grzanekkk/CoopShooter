@@ -23,6 +23,12 @@ protected:
 
 	void MoveRight(float Value);
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components" )	// We can only edit already created component, we cant assign new one in Blueprint
+	class UCameraComponent* CameraComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	class USpringArmComponent* SpringArmComp;
+
 
 public:	
 	// Called every frame
