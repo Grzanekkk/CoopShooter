@@ -3,6 +3,9 @@
 
 #include "SWeapon.h"
 
+#include "DrawDebugHelpers.h"
+#include "Kismet/GameplayStatics.h"
+
 // Sets default values
 ASWeapon::ASWeapon()
 {
@@ -25,11 +28,12 @@ void ASWeapon::BeginPlay()
 void ASWeapon::Fire()
 {
 	AActor* OwnerActor = GetOwner();
-	FVector EyeLocation;
+	FVector TraceStart;
 	FRotator EyeRotation;
-	OwnerActor->GetActorEyesViewPoint(EyeLocation, EyeRotation);
+	OwnerActor->GetActorEyesViewPoint(TraceStart, EyeRotation);
 
-	FVector TraceEnd = EyeLocation + EyeRotation.Vector() * Range;
+	FVector ShotDirection = EyeRotation.Vector();
+	FVector TraceEnd = TraceStart + ShotDirection * Range;
 
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(OwnerActor);	// Ignoring owner collisions
@@ -37,10 +41,14 @@ void ASWeapon::Fire()
 	QueryParams.bTraceComplex = true;	// Checks for every triangle while hitting target. This helps witch head shot damage
 	
 	FHitResult Hit;
-	if(GetWorld()->LineTraceSingleByChannel(Hit, EyeLocation, TraceEnd, ECC_Visibility, QueryParams))
+	if(GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, ECC_Visibility, QueryParams))
 	{
-		// Hit!
+		AActor* HitActor = Hit.GetActor();
+
+		UGameplayStatics::ApplyPointDamage(HitActor, 20.f, ShotDirection, Hit, OwnerActor->GetInstigatorController(), this, DamageType);
 	}
+
+	DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Cyan, false, 10, 0, 1);
 }
 
 // Called every frame

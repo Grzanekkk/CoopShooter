@@ -19,6 +19,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void Fire();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
@@ -26,6 +27,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Params")
 	float Range;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	TSubclassOf<UDamageType> DamageType;
 
 public:	
 	// Called every frame

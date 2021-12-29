@@ -30,6 +30,17 @@ void ASCharacter::BeginPlay()
 	GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true;
 }
 
+void ASCharacter::Fire()
+{
+	// TODO
+}
+
+// Called every frame
+void ASCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+}
 
 void ASCharacter::MoveForward(float Value)
 {
@@ -57,15 +68,6 @@ void ASCharacter::Jump()
 	Super::Jump();
 }
 
-
-// Called every frame
-void ASCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
-
 // Called to bind functionality to input
 void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -81,4 +83,15 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ASCharacter::EndCrouch);
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ASCharacter::Jump);
+
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ASCharacter::Fire);
+}
+
+FVector ASCharacter::GetPawnViewLocation() const
+{
+	if(CameraComp)
+	{
+		return CameraComp->GetComponentLocation();
+	}
+	return Super::GetPawnViewLocation();
 }
