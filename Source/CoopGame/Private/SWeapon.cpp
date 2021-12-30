@@ -48,7 +48,7 @@ void ASWeapon::Fire()
 		UGameplayStatics::ApplyPointDamage(HitActor, 20.f, ShotDirection, Hit, OwnerActor->GetInstigatorController(), this, DamageType);
 	}
 
-	DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Cyan, false, 10, 0, 1);
+	DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Cyan, false, 1.f, 0, 1.f);
 }
 
 // Called every frame
