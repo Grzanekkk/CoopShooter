@@ -15,6 +15,8 @@ ASWeapon::ASWeapon()
 	SkelMeshComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SkeletalMeshComp"));
 	RootComponent = SkelMeshComp;
 
+	MuzzleSocketName = "MuzzleSocket";
+
 	Range = 10000.f;
 }
 
@@ -43,12 +45,37 @@ void ASWeapon::Fire()
 	FHitResult Hit;
 	if(GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, ECC_Visibility, QueryParams))
 	{
+		UE_LOG(LogTemp, Warning, TEXT("We hit something!"));
 		AActor* HitActor = Hit.GetActor();
 
 		UGameplayStatics::ApplyPointDamage(HitActor, 20.f, ShotDirection, Hit, OwnerActor->GetInstigatorController(), this, DamageType);
-	}
 
+		if(ImpctEffect)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Playing impact effect"));
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpctEffect, Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("ImpactEffect is nullptr"));
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("We didn't hit something!"));
+	}
+	
 	DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Cyan, false, 1.f, 0, 1.f);
+
+	if(MuzzleFlashEffect)
+	{
+		UGameplayStatics::SpawnEmitterAttached(MuzzleFlashEffect, SkelMeshComp, MuzzleSocketName);
+	}
+}
+
+void ASWeapon::PlayFiringEffects()
+{
+		// IDK if i want to use this function :|
 }
 
 // Called every frame

@@ -22,6 +22,8 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void Fire();
 
+	void PlayFiringEffects();
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	class USkeletalMeshComponent* SkelMeshComp;
 
@@ -30,6 +32,15 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	TSubclassOf<UDamageType> DamageType;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	UParticleSystem* MuzzleFlashEffect;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	UParticleSystem* ImpctEffect;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")	// VisibleDefaultsOnly, we still show this value in the editor, but we need to set it ourself. It's helpful for designers.
+	FName MuzzleSocketName;
 
 public:	
 	// Called every frame
