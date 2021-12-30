@@ -39,8 +39,14 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	UParticleSystem* ImpctEffect;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	UParticleSystem* TraceEffect;
+
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")	// VisibleDefaultsOnly, we still show this value in the editor, but we need to set it ourself. It's helpful for designers.
 	FName MuzzleSocketName;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
+	FName TraceTargetName;
 
 public:	
 	// Called every frame

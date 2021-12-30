@@ -5,6 +5,7 @@
 
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
+#include "Particles/ParticleSystemComponent.h"
 
 // Sets default values
 ASWeapon::ASWeapon()
@@ -15,7 +16,9 @@ ASWeapon::ASWeapon()
 	SkelMeshComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SkeletalMeshComp"));
 	RootComponent = SkelMeshComp;
 
+
 	MuzzleSocketName = "MuzzleSocket";
+	TraceTargetName = "BeamEnd";
 
 	Range = 10000.f;
 }
@@ -41,28 +44,22 @@ void ASWeapon::Fire()
 	QueryParams.AddIgnoredActor(OwnerActor);	// Ignoring owner collisions
 	QueryParams.AddIgnoredActor(this);	// Ignoring weapon collisions
 	QueryParams.bTraceComplex = true;	// Checks for every triangle while hitting target. This helps witch head shot damage
+
+	FVector TraceEndPoint = TraceEnd;
 	
 	FHitResult Hit;
 	if(GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, ECC_Visibility, QueryParams))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("We hit something!"));
 		AActor* HitActor = Hit.GetActor();
 
 		UGameplayStatics::ApplyPointDamage(HitActor, 20.f, ShotDirection, Hit, OwnerActor->GetInstigatorController(), this, DamageType);
 
 		if(ImpctEffect)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Playing impact effect"));
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpctEffect, Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
 		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("ImpactEffect is nullptr"));
-		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("We didn't hit something!"));
+
+		TraceEndPoint = Hit.ImpactPoint;
 	}
 	
 	DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Cyan, false, 1.f, 0, 1.f);
@@ -70,6 +67,18 @@ void ASWeapon::Fire()
 	if(MuzzleFlashEffect)
 	{
 		UGameplayStatics::SpawnEmitterAttached(MuzzleFlashEffect, SkelMeshComp, MuzzleSocketName);
+	}
+
+	if(TraceEffect)
+	{
+		FVector MuzzleLocation = SkelMeshComp->GetSocketLocation(MuzzleSocketName);
+
+		UParticleSystemComponent* TracerComp = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TraceEffect, MuzzleLocation);
+		if(TracerComp)
+		{
+			TracerComp->SetVectorParameter(TraceTargetName, TraceEndPoint);
+		}
+		
 	}
 }
 
