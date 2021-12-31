@@ -16,7 +16,6 @@ ASWeapon::ASWeapon()
 	SkelMeshComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SkeletalMeshComp"));
 	RootComponent = SkelMeshComp;
 
-
 	MuzzleSocketName = "MuzzleSocket";
 	TraceTargetName = "BeamEnd";
 
