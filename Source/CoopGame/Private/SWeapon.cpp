@@ -31,16 +31,21 @@ void ASWeapon::BeginPlay()
 
 void ASWeapon::Fire()
 {
-	AActor* OwnerActor = GetOwner();
+	AActor* AOwner = GetOwner();
+
 	FVector TraceStart;
 	FRotator EyeRotation;
-	OwnerActor->GetActorEyesViewPoint(TraceStart, EyeRotation);
+	AOwner->GetActorEyesViewPoint(TraceStart, EyeRotation);
 
 	FVector ShotDirection = EyeRotation.Vector();
+
+	// FVector MuzzleLocation = SkelMeshComp->GetSocketLocation(MuzzleSocketName);
+	// FVector MuzzleRotation = SkelMeshComp->GetSocketRotation(MuzzleSocketName).Vector();
+	
 	FVector TraceEnd = TraceStart + ShotDirection * Range;
 
 	FCollisionQueryParams QueryParams;
-	QueryParams.AddIgnoredActor(OwnerActor);	// Ignoring owner collisions
+	QueryParams.AddIgnoredActor(AOwner);	// Ignoring owner collisions
 	QueryParams.AddIgnoredActor(this);	// Ignoring weapon collisions
 	QueryParams.bTraceComplex = true;	// Checks for every triangle while hitting target. This helps witch head shot damage
 
@@ -51,7 +56,7 @@ void ASWeapon::Fire()
 	{
 		AActor* HitActor = Hit.GetActor();
 
-		UGameplayStatics::ApplyPointDamage(HitActor, 20.f, ShotDirection, Hit, OwnerActor->GetInstigatorController(), this, DamageType);
+		UGameplayStatics::ApplyPointDamage(HitActor, 20.f, ShotDirection, Hit, AOwner->GetInstigatorController(), this, DamageType);
 
 		if(ImpctEffect)
 		{
@@ -70,14 +75,11 @@ void ASWeapon::Fire()
 
 	if(TraceEffect)
 	{
-		FVector MuzzleLocation = SkelMeshComp->GetSocketLocation(MuzzleSocketName);
-
-		UParticleSystemComponent* TracerComp = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TraceEffect, MuzzleLocation);
+		UParticleSystemComponent* TracerComp = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TraceEffect, TraceStart);
 		if(TracerComp)
 		{
 			TracerComp->SetVectorParameter(TraceTargetName, TraceEndPoint);
 		}
-		
 	}
 }
 
