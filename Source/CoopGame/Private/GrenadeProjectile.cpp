@@ -3,25 +3,43 @@
 
 #include "GrenadeProjectile.h"
 
-// Sets default values
+#include "Components/SphereComponent.h"
+#include "Components/MeshComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+
 AGrenadeProjectile::AGrenadeProjectile()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	
+	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
+	CollisionComp->InitSphereRadius(5.0f);
+	CollisionComp->SetCollisionProfileName("Projectile");
+	CollisionComp->OnComponentHit.AddDynamic(this, &AGrenadeProjectile::OnHit);	// set up a notification for when this component hits something blocking
+	CollisionComp->CanCharacterStepUpOn = ECB_No;
+	
+	RootComponent = CollisionComp;
 
+	MeshComp = CreateDefaultSubobject<UMeshComponent>(TEXT("MeshComp"));
+	//MeshComp->SetupAttachment(CollisionComp);
+	
+	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
+	ProjectileMovement->UpdatedComponent = CollisionComp;
+	ProjectileMovement->InitialSpeed = 3000.f;
+	ProjectileMovement->MaxSpeed = 3000.f;
+	ProjectileMovement->bRotationFollowsVelocity = true;
+	ProjectileMovement->bShouldBounce = true;
+	
+	InitialLifeSpan = 1.0f;
 }
 
-// Called when the game starts or when spawned
+void AGrenadeProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	FVector NormalImpulse, const FHitResult& Hit)
+{
+	
+}
+
 void AGrenadeProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 	
 }
-
-// Called every frame
-void AGrenadeProjectile::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-

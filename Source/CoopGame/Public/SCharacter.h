@@ -31,7 +31,7 @@ protected:
 
 	void Jump();
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components" )	// We can only edit already created component, we cant assign new one in Blueprint
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")	// We can only edit already created component, we cant assign new one in Blueprint
 	class UCameraComponent* CameraComp;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")

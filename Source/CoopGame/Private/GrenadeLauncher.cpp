@@ -2,6 +2,7 @@
 
 
 #include "GrenadeLauncher.h"
+#include "GrenadeProjectile.h"
 
 // Sets default values
 AGrenadeLauncher::AGrenadeLauncher()
@@ -32,5 +33,18 @@ void AGrenadeLauncher::Tick(float DeltaTime)
 
 void AGrenadeLauncher::Fire()
 {
-	
+	UE_LOG(LogTemp, Warning, TEXT("Shooting!!"));
+	if(ProjectileClass)
+	{
+		FVector MuzzleLocation = SkelMeshComp->GetSocketLocation(MuzzleSocketName);
+		FRotator MuzzleRotation = SkelMeshComp->GetSocketRotation(MuzzleSocketName);
+
+		//Set Spawn Collision Handling Override
+		FActorSpawnParameters ActorSpawnParams;
+		ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+		ActorSpawnParams.Instigator = GetOwner()->GetInstigatorController()->GetPawn();
+
+		// spawn the projectile at the muzzle
+		GetWorld()->SpawnActor<AGrenadeProjectile>(ProjectileClass, MuzzleLocation, MuzzleRotation, ActorSpawnParams);
+	}
 }

@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GrenadeProjectile.h"
 #include "SWeapon.h"
-#include "GameFramework/Actor.h"
 #include "GrenadeLauncher.generated.h"
 
 UCLASS()
@@ -24,8 +24,9 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	UParticleSystem* ExplosionEffect;
-	
-	class AGrenadeProjectile* ProjectileClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
+	TSubclassOf<AGrenadeProjectile> ProjectileClass;
 
 public:	
 	// Called every frame
