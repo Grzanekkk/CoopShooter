@@ -21,6 +21,15 @@ protected:
 
 	void Fire();
 
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	class ASWeapon* CurrentWeapon;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	TSubclassOf<ASWeapon> StarterWeaponClass;
+
+	UPROPERTY(VisibleAnywhere, Category = "Weapon")
+	FName WeaponSocketName;
+
 	void MoveForward(float Value);
 
 	void MoveRight(float Value);

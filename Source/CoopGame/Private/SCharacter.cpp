@@ -2,6 +2,8 @@
 
 
 #include "SCharacter.h"
+
+#include "SWeapon.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/PawnMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -22,6 +24,8 @@ ASCharacter::ASCharacter()
 
 	ZoomedFOV = 60.f;
 	ZoomInterpSpeed = 20.f;
+	
+	WeaponSocketName = "WeaponSocket";
 }
 
 // Called when the game starts or when spawned
@@ -32,11 +36,16 @@ void ASCharacter::BeginPlay()
 	GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true;
 
 	DefaultFOV = CameraComp->FieldOfView;
-}
 
-void ASCharacter::Fire()
-{
-	// TODO
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	
+	CurrentWeapon = GetWorld()->SpawnActor<ASWeapon>(StarterWeaponClass, SpawnParams);
+	if(CurrentWeapon)
+	{
+		CurrentWeapon->SetOwner(this);
+		CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponSocketName);
+	}
 }
 
 // Called every frame
@@ -48,9 +57,17 @@ void ASCharacter::Tick(float DeltaTime)
 
 	float NewFOV = FMath::FInterpTo(CameraComp->FieldOfView, TargetFOV, DeltaTime, ZoomInterpSpeed);
 
-	UE_LOG(LogTemp, Warning, TEXT("NewFOV = %f"), NewFOV);
+	// UE_LOG(LogTemp, Warning, TEXT("NewFOV = %f"), NewFOV);
 
 	CameraComp->SetFieldOfView(NewFOV);
+}
+
+void ASCharacter::Fire()
+{
+	if(CurrentWeapon)
+	{
+		CurrentWeapon->Fire();
+	}
 }
 
 void ASCharacter::MoveForward(float Value)

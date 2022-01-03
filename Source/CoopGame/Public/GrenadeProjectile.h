@@ -44,6 +44,10 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "FX")
 	UParticleSystem* ExplosionParticles;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "SFX")
+	class USoundCue* ExplosionCue;
+	
 
 	FTimerHandle TH_ExplosionDelay;
 	

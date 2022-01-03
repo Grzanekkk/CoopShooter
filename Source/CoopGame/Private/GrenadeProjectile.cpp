@@ -8,12 +8,10 @@
 #include "Components/MeshComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "Particles//ParticleSystem.h"
+#include "Sound/SoundCue.h"
 
 AGrenadeProjectile::AGrenadeProjectile()
 {
-	PrimaryActorTick.bCanEverTick = true;
-	
 	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
 	CollisionComp->InitSphereRadius(5.0f);
 	CollisionComp->SetCollisionProfileName("Projectile");
@@ -65,10 +63,11 @@ void AGrenadeProjectile::BeginPlay()
 
 void AGrenadeProjectile::Explode()
 {
-	TArray<AActor*> IgnoredActors;
+	TArray<AActor*> IgnoredActors;	// TODO
 	
 	UGameplayStatics::ApplyRadialDamage(GetWorld(), ExplosionDamage, GetActorLocation(), ExplosionRadius, DamageType, IgnoredActors);
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionParticles, GetActorLocation());
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), ExplosionCue, GetActorLocation());
 
 	DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 8, FColor::Orange, false, 3.f);
 	

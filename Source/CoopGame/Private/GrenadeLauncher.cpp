@@ -3,12 +3,11 @@
 
 #include "GrenadeLauncher.h"
 #include "GrenadeProjectile.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 
-// Sets default values
 AGrenadeLauncher::AGrenadeLauncher()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
 
 	SkelMeshComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SkeletalMeshComponent"));
 	RootComponent = SkelMeshComp;
@@ -18,21 +17,6 @@ AGrenadeLauncher::AGrenadeLauncher()
 	Damage = 50.f;
 	ExplosionRadius = 50.f;
 	ExplosionDelay = 1.f;
-}
-
-// Called when the game starts or when spawned
-void AGrenadeLauncher::BeginPlay()
-{
-	Super::BeginPlay();
-	
-}
-
-
-// Called every frame
-void AGrenadeLauncher::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
 }
 
 void AGrenadeLauncher::Fire()
@@ -56,9 +40,8 @@ void AGrenadeLauncher::Fire()
 		ActorSpawnParams.Instigator = GetOwner()->GetInstigatorController()->GetPawn();
 		
 		AGrenadeProjectile* Projectile = GetWorld()->SpawnActor<AGrenadeProjectile>(ProjectileClass, MuzzleLocation, LaunchRotation, ActorSpawnParams);
-		if(Projectile)	// Currently not working	
+		if(Projectile)	
 		{
-			// TODO
 			UE_LOG(LogTemp, Warning, TEXT("Changing projectile parameters"));
 			
 			Projectile->SetDamage(50);
@@ -66,5 +49,7 @@ void AGrenadeLauncher::Fire()
 			Projectile->SetExplosionRadius(ExplosionRadius);
 			Projectile->SetExplosionDelay(ExplosionDelay);
 		}
+
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), LaunchCue, GetActorLocation(), FRotator::ZeroRotator);
 	}
 }

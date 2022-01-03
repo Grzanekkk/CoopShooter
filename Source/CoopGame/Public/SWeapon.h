@@ -12,15 +12,13 @@ class COOPGAME_API ASWeapon : public AActor
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
 	ASWeapon();
-
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
 	
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	virtual void Fire();
+
+protected:
+	void PlayFireEffects(FVector TraceStart, FVector TraceEndPoint) const;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	class USkeletalMeshComponent* SkelMeshComp;
@@ -48,9 +46,4 @@ protected:
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
 	FName TraceTargetName;
-
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
 };

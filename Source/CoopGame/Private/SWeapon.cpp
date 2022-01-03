@@ -13,9 +13,6 @@ FAutoConsoleVariableRef CVARDebugWeaponDrawing (TEXT("COOP.DebugWeapons"), Debug
 // Sets default values
 ASWeapon::ASWeapon()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
 	SkelMeshComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SkeletalMeshComp"));
 	RootComponent = SkelMeshComp;
 
@@ -24,13 +21,6 @@ ASWeapon::ASWeapon()
 
 	Range = 10000.f;
 	Damage = 20.f;
-}
-
-// Called when the game starts or when spawned
-void ASWeapon::BeginPlay()
-{
-	Super::BeginPlay();
-	
 }
 
 void ASWeapon::Fire()
@@ -70,9 +60,14 @@ void ASWeapon::Fire()
 		TraceEndPoint = Hit.ImpactPoint;
 	}
 	
+	PlayFireEffects(TraceStart, TraceEndPoint);
+}
+
+void ASWeapon::PlayFireEffects(FVector TraceStart, FVector TraceEndPoint) const 
+{
 	if(DebugWeaponDrawing != 0)
 	{
-		DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Cyan, false, 1.f, 0, 1.f);
+		DrawDebugLine(GetWorld(), TraceStart, TraceEndPoint, FColor::Cyan, false, 1.f, 0, 1.f);
 	}
 
 	if(MuzzleFlashEffect)
@@ -89,11 +84,3 @@ void ASWeapon::Fire()
 		}
 	}
 }
-
-// Called every frame
-void ASWeapon::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
