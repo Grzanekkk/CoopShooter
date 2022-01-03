@@ -34,17 +34,26 @@ void AGrenadeLauncher::Tick(float DeltaTime)
 void AGrenadeLauncher::Fire()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Shooting!!"));
-	if(ProjectileClass)
+	AActor* AOwner = GetOwner();
+	
+	if(ProjectileClass && AOwner)
 	{
+		FVector TraceStart;
+		FRotator EyeRotation;
+		AOwner->GetActorEyesViewPoint(TraceStart, EyeRotation);
+		
 		FVector MuzzleLocation = SkelMeshComp->GetSocketLocation(MuzzleSocketName);
 		FRotator MuzzleRotation = SkelMeshComp->GetSocketRotation(MuzzleSocketName);
-
-		//Set Spawn Collision Handling Override
+		
 		FActorSpawnParameters ActorSpawnParams;
 		ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 		ActorSpawnParams.Instigator = GetOwner()->GetInstigatorController()->GetPawn();
-
-		// spawn the projectile at the muzzle
-		GetWorld()->SpawnActor<AGrenadeProjectile>(ProjectileClass, MuzzleLocation, MuzzleRotation, ActorSpawnParams);
+		
+		AGrenadeProjectile* Projectile = GetWorld()->SpawnActor<AGrenadeProjectile>(ProjectileClass, MuzzleLocation, EyeRotation, ActorSpawnParams);
+		if(Projectile)
+		{
+			Projectile->SetDamage(50);
+			Projectile->SetExplosionParticles(ExplosionEffect);
+		}
 	}
 }

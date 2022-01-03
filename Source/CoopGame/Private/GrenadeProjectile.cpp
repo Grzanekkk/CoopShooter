@@ -6,6 +6,8 @@
 #include "Components/SphereComponent.h"
 #include "Components/MeshComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Particles//ParticleSystem.h"
 
 AGrenadeProjectile::AGrenadeProjectile()
 {
@@ -24,22 +26,51 @@ AGrenadeProjectile::AGrenadeProjectile()
 	
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
 	ProjectileMovement->UpdatedComponent = CollisionComp;
-	ProjectileMovement->InitialSpeed = 3000.f;
-	ProjectileMovement->MaxSpeed = 3000.f;
+	ProjectileMovement->InitialSpeed = 2000.f;
+	ProjectileMovement->MaxSpeed = 2000.f;
 	ProjectileMovement->bRotationFollowsVelocity = true;
 	ProjectileMovement->bShouldBounce = true;
 	
 	InitialLifeSpan = 1.0f;
+
+	ExplosionDamage = DefaultDamageVaule;
+	ExplosionRadius = 50.f;
+	ExplosionDelay = 1.f;
+	DamageType = UDamageType::StaticClass();
 }
 
 void AGrenadeProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	FVector NormalImpulse, const FHitResult& Hit)
 {
-	
+	Explode();
 }
 
 void AGrenadeProjectile::BeginPlay()
 {
 	Super::BeginPlay();
+
+	GetWorldTimerManager().SetTimer(TH_ExplosionDelay, this,  &AGrenadeProjectile::Explode, ExplosionDelay);
+}
+
+void AGrenadeProjectile::Explode()
+{
+	TArray<AActor*> IgnoredActors;
 	
+	UGameplayStatics::ApplyRadialDamage(GetWorld(), ExplosionDamage, GetActorLocation(), ExplosionRadius, DamageType, IgnoredActors);
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionParticles, GetActorLocation());
+
+	Destroy();
+}
+
+void AGrenadeProjectile::SetDamage(float DamageVaule)
+{
+	if(DamageVaule > 0 && DamageVaule < 100000)
+	{
+		ExplosionDamage = DamageVaule;
+	}
+}
+
+inline void AGrenadeProjectile::SetExplosionParticles(UParticleSystem* _ExplosionPartilces)
+{
+	ExplosionParticles = _ExplosionPartilces;
 }

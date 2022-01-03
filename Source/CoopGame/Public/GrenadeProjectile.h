@@ -13,9 +13,35 @@ class COOPGAME_API AGrenadeProjectile : public AActor
 	
 public:	
 	AGrenadeProjectile();
+	
+	void SetDamage(float DamageVaule);
 
+	void SetExplosionParticles(UParticleSystem* _ExplosionPartilces);
 protected:
 	virtual void BeginPlay() override;
+
+	UFUNCTION()
+	void Explode();
+
+	UPROPERTY(VisibleAnywhere, Category = "Damage")
+	TSubclassOf<UDamageType> DamageType;
+	
+	UPROPERTY(VisibleAnywhere, Category = "Damage")
+	float ExplosionRadius;
+
+	UPROPERTY(VisibleAnywhere, Category = "Damage")
+	float ExplosionDamage;
+
+	UPROPERTY(VisibleAnywhere, Category = "Damage")
+	float DefaultDamageVaule = 50.f;
+
+	UPROPERTY(VisibleAnywhere, Category = "Damage")
+	float ExplosionDelay;
+
+	UPROPERTY(VisibleAnywhere, Category = "FX")
+	UParticleSystem* ExplosionParticles;
+
+	FTimerHandle TH_ExplosionDelay;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Components")
 	class USphereComponent* CollisionComp;
