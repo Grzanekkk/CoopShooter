@@ -14,6 +14,10 @@ AGrenadeLauncher::AGrenadeLauncher()
 	RootComponent = SkelMeshComp;
 
 	MuzzleSocketName = "MuzzleSocket";
+
+	Damage = 50.f;
+	ExplosionRadius = 50.f;
+	ExplosionDelay = 1.f;
 }
 
 // Called when the game starts or when spawned
@@ -39,8 +43,10 @@ void AGrenadeLauncher::Fire()
 	if(ProjectileClass && AOwner)
 	{
 		FVector TraceStart;
-		FRotator EyeRotation;
-		AOwner->GetActorEyesViewPoint(TraceStart, EyeRotation);
+		FRotator LaunchRotation;
+		AOwner->GetActorEyesViewPoint(TraceStart, LaunchRotation);
+
+		LaunchRotation += FRotator(10.f, 0.f, 0.f);
 		
 		FVector MuzzleLocation = SkelMeshComp->GetSocketLocation(MuzzleSocketName);
 		FRotator MuzzleRotation = SkelMeshComp->GetSocketRotation(MuzzleSocketName);
@@ -49,11 +55,16 @@ void AGrenadeLauncher::Fire()
 		ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 		ActorSpawnParams.Instigator = GetOwner()->GetInstigatorController()->GetPawn();
 		
-		AGrenadeProjectile* Projectile = GetWorld()->SpawnActor<AGrenadeProjectile>(ProjectileClass, MuzzleLocation, EyeRotation, ActorSpawnParams);
-		if(Projectile)
+		AGrenadeProjectile* Projectile = GetWorld()->SpawnActor<AGrenadeProjectile>(ProjectileClass, MuzzleLocation, LaunchRotation, ActorSpawnParams);
+		if(Projectile)	// Currently not working	
 		{
+			// TODO
+			UE_LOG(LogTemp, Warning, TEXT("Changing projectile parameters"));
+			
 			Projectile->SetDamage(50);
 			Projectile->SetExplosionParticles(ExplosionEffect);
+			Projectile->SetExplosionRadius(ExplosionRadius);
+			Projectile->SetExplosionDelay(ExplosionDelay);
 		}
 	}
 }

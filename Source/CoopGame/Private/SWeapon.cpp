@@ -20,6 +20,7 @@ ASWeapon::ASWeapon()
 	TraceTargetName = "BeamEnd";
 
 	Range = 10000.f;
+	Damage = 20.f;
 }
 
 // Called when the game starts or when spawned
@@ -56,7 +57,7 @@ void ASWeapon::Fire()
 	{
 		AActor* HitActor = Hit.GetActor();
 
-		UGameplayStatics::ApplyPointDamage(HitActor, 20.f, ShotDirection, Hit, AOwner->GetInstigatorController(), this, DamageType);
+		UGameplayStatics::ApplyPointDamage(HitActor, Damage, ShotDirection, Hit, AOwner->GetInstigatorController(), this, DamageType);
 
 		if(ImpctEffect)
 		{
@@ -81,11 +82,6 @@ void ASWeapon::Fire()
 			TracerComp->SetVectorParameter(TraceTargetName, TraceEndPoint);
 		}
 	}
-}
-
-void ASWeapon::PlayFiringEffects()
-{
-		// IDK if i want to use this function :|
 }
 
 // Called every frame

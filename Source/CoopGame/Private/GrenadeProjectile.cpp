@@ -3,6 +3,7 @@
 
 #include "GrenadeProjectile.h"
 
+#include "DrawDebugHelpers.h"
 #include "Components/SphereComponent.h"
 #include "Components/MeshComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
@@ -33,6 +34,7 @@ AGrenadeProjectile::AGrenadeProjectile()
 	
 	InitialLifeSpan = 1.0f;
 
+	// Setting default values
 	ExplosionDamage = DefaultDamageVaule;
 	ExplosionRadius = 50.f;
 	ExplosionDelay = 1.f;
@@ -42,6 +44,7 @@ AGrenadeProjectile::AGrenadeProjectile()
 void AGrenadeProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	FVector NormalImpulse, const FHitResult& Hit)
 {
+	UE_LOG(LogTemp, Warning, TEXT("Projectile Colliding"));
 	Explode();
 }
 
@@ -59,18 +62,7 @@ void AGrenadeProjectile::Explode()
 	UGameplayStatics::ApplyRadialDamage(GetWorld(), ExplosionDamage, GetActorLocation(), ExplosionRadius, DamageType, IgnoredActors);
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionParticles, GetActorLocation());
 
+	DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 8, FColor::Orange, false, 3.f);
+	
 	Destroy();
-}
-
-void AGrenadeProjectile::SetDamage(float DamageVaule)
-{
-	if(DamageVaule > 0 && DamageVaule < 100000)
-	{
-		ExplosionDamage = DamageVaule;
-	}
-}
-
-inline void AGrenadeProjectile::SetExplosionParticles(UParticleSystem* _ExplosionPartilces)
-{
-	ExplosionParticles = _ExplosionPartilces;
 }

@@ -22,13 +22,14 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	virtual void Fire();
 
-	void PlayFiringEffects();
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	class USkeletalMeshComponent* SkelMeshComp;
 
 	UPROPERTY(EditAnywhere, Category = "Params")
 	float Range;
+
+	UPROPERTY(EditAnywhere, Category = "Stats")
+	float Damage;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	TSubclassOf<UDamageType> DamageType;

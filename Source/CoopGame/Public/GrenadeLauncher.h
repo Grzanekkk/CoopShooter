@@ -28,6 +28,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
 	TSubclassOf<AGrenadeProjectile> ProjectileClass;
 
+	UPROPERTY(EditAnywhere, Category = "Stats")
+	float ExplosionRadius;
+
+	UPROPERTY(EditAnywhere, Category = "Stats")
+	float ExplosionDelay;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

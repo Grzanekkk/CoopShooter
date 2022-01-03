@@ -14,9 +14,13 @@ class COOPGAME_API AGrenadeProjectile : public AActor
 public:	
 	AGrenadeProjectile();
 	
-	void SetDamage(float DamageVaule);
+	FORCEINLINE void SetDamage(float DamageVaule) { if(DamageVaule > 0 && DamageVaule < 100000) { ExplosionDamage = DamageVaule; } }
 
-	void SetExplosionParticles(UParticleSystem* _ExplosionPartilces);
+	FORCEINLINE void SetExplosionRadius(float Radius) { ExplosionRadius = Radius; }
+
+	FORCEINLINE void SetExplosionDelay(float Delay) { ExplosionDelay = Delay; } 
+
+	FORCEINLINE void SetExplosionParticles(UParticleSystem* _ExplosionPartilces) { ExplosionParticles = _ExplosionPartilces; }
 protected:
 	virtual void BeginPlay() override;
 
