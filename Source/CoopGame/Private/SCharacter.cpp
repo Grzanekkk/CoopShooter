@@ -19,7 +19,9 @@ ASCharacter::ASCharacter()
 	
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraCompontent"));
 	CameraComp->SetupAttachment(SpringArmComp);
-	
+
+	ZoomedFOV = 60.f;
+	ZoomInterpSpeed = 20.f;
 }
 
 // Called when the game starts or when spawned
@@ -28,6 +30,8 @@ void ASCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true;
+
+	DefaultFOV = CameraComp->FieldOfView;
 }
 
 void ASCharacter::Fire()
@@ -40,6 +44,13 @@ void ASCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	float TargetFOV = bWantsToZoom ? ZoomedFOV : DefaultFOV;
+
+	float NewFOV = FMath::FInterpTo(CameraComp->FieldOfView, TargetFOV, DeltaTime, ZoomInterpSpeed);
+
+	UE_LOG(LogTemp, Warning, TEXT("NewFOV = %f"), NewFOV);
+
+	CameraComp->SetFieldOfView(NewFOV);
 }
 
 void ASCharacter::MoveForward(float Value)
@@ -61,6 +72,16 @@ void ASCharacter::BeginCrouch()
 void ASCharacter::EndCrouch()
 {
 	UnCrouch();
+}
+
+void ASCharacter::BeginZoom()
+{
+	bWantsToZoom = true;
+}
+
+void ASCharacter::EndZoom()
+{
+	bWantsToZoom = false;
 }
 
 void ASCharacter::Jump()
@@ -85,6 +106,9 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ASCharacter::Jump);
 
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ASCharacter::Fire);
+
+	PlayerInputComponent->BindAction("Zoom", IE_Pressed, this, &ASCharacter::BeginZoom);
+	PlayerInputComponent->BindAction("Zoom", IE_Released, this, &ASCharacter::EndZoom);
 }
 
 FVector ASCharacter::GetPawnViewLocation() const

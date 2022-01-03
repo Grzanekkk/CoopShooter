@@ -17,7 +17,8 @@ AGrenadeProjectile::AGrenadeProjectile()
 	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
 	CollisionComp->InitSphereRadius(5.0f);
 	CollisionComp->SetCollisionProfileName("Projectile");
-	CollisionComp->OnComponentHit.AddDynamic(this, &AGrenadeProjectile::OnHit);	// set up a notification for when this component hits something blocking
+	//CollisionComp->OnComponentHit.AddDynamic(this, &AGrenadeProjectile::OnHit);	// set up a notification for when this component hits something blocking
+	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &AGrenadeProjectile::OnComponentBeginOverlap);
 	CollisionComp->CanCharacterStepUpOn = ECB_No;
 	
 	RootComponent = CollisionComp;
@@ -45,6 +46,13 @@ void AGrenadeProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
 	FVector NormalImpulse, const FHitResult& Hit)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Projectile Colliding"));
+	Explode();
+}
+
+void AGrenadeProjectile::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Projectile Overlapping"));
 	Explode();
 }
 

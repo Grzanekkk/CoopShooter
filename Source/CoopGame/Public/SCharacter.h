@@ -29,13 +29,27 @@ protected:
 	
 	void EndCrouch();
 
-	void Jump();
+	void BeginZoom();
+
+	void EndZoom();
+
+	virtual void Jump() override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")	// We can only edit already created component, we cant assign new one in Blueprint
 	class UCameraComponent* CameraComp;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	class USpringArmComponent* SpringArmComp;
+
+	bool bWantsToZoom;
+	
+	float DefaultFOV;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Camera")
+	float ZoomedFOV;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Camera")
+	float ZoomInterpSpeed;
 
 
 public:	
