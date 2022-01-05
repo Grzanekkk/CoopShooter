@@ -4,8 +4,10 @@
 #include "SWeapon.h"
 
 #include "DrawDebugHelpers.h"
+#include "CoopGame/CoopGame.h"
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
 
 static int32 DebugWeaponDrawing = 0;
 FAutoConsoleVariableRef CVARDebugWeaponDrawing (TEXT("COOP.DebugWeapons"), DebugWeaponDrawing, TEXT("Draw Debug Lines for Weapons"), ECVF_Cheat);
@@ -21,6 +23,8 @@ ASWeapon::ASWeapon()
 
 	Range = 10000.f;
 	Damage = 20.f;
+
+	HeadShotDamageMultipler = 2.f;
 }
 
 void ASWeapon::Fire()
@@ -42,19 +46,37 @@ void ASWeapon::Fire()
 	QueryParams.AddIgnoredActor(AOwner);	// Ignoring owner collisions
 	QueryParams.AddIgnoredActor(this);	// Ignoring weapon collisions
 	QueryParams.bTraceComplex = true;	// Checks for every triangle while hitting target. This helps witch head shot damage
+	QueryParams.bReturnPhysicalMaterial = true;
 
 	FVector TraceEndPoint = TraceEnd;
 	
 	FHitResult Hit;
-	if(GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, ECC_Visibility, QueryParams))
+	if(GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, COLLISION_WEAPON, QueryParams))
 	{
 		AActor* HitActor = Hit.GetActor();
+		
+		EPhysicalSurface SurfaceType = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());
 
-		UGameplayStatics::ApplyPointDamage(HitActor, Damage, ShotDirection, Hit, AOwner->GetInstigatorController(), this, DamageType);
+		float ActualDamage = Damage;
+		if(SurfaceType == SurfaceType2)	// IDK why macro is not working TODO
+			ActualDamage *= HeadShotDamageMultipler;
 
-		if(ImpctEffect)
+		UGameplayStatics::ApplyPointDamage(HitActor, ActualDamage, ShotDirection, Hit, AOwner->GetInstigatorController(), this, DamageType);
+		
+		UParticleSystem* SelectedEffect;
+		switch (SurfaceType)
 		{
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpctEffect, Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
+		case SurfaceType1:	// SURFACE_BODYDEFAULT, Macros are not working for some reason :(	TODO
+		case SurfaceType2:	// SURFACE_BODYVULNERABLE
+			SelectedEffect = BodyImpctEffect;
+			break;
+		default:
+			SelectedEffect = DefaultImpctEffect;
+			break;
+		}
+		if(SelectedEffect)
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SelectedEffect, Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
 		}
 
 		TraceEndPoint = Hit.ImpactPoint;

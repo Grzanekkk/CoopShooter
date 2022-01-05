@@ -4,3 +4,7 @@
 
 #include "CoreMinimal.h"
 
+#define SURFACE_BODYDEFAULT			SurfaceType1;
+#define SURFACE_BODYVULNERABLE		SurfaceType2;
+
+#define COLLISION_WEAPON			ECC_GameTraceChannel1

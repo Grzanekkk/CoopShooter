@@ -31,6 +31,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Stats")
 	float Damage;
 
+	UPROPERTY(EditAnywhere, Category = "Stats")
+	float HeadShotDamageMultipler;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	TSubclassOf<UDamageType> DamageType;
 
@@ -38,7 +41,10 @@ protected:
 	UParticleSystem* MuzzleFlashEffect;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
-	UParticleSystem* ImpctEffect;
+	UParticleSystem* DefaultImpctEffect;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	UParticleSystem* BodyImpctEffect;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	UParticleSystem* TraceEffect;
