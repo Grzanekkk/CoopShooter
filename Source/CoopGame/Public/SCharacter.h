@@ -19,7 +19,9 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	void Fire();
+	void StartFire();
+	
+	void StopFire();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	class ASWeapon* CurrentWeapon;

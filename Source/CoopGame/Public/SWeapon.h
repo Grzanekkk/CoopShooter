@@ -17,15 +17,20 @@ public:
 	ASWeapon();
 	
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	virtual void Fire();
+	void StartFire();
 
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	void StopFire();
+	
 protected:
+	virtual void Fire();
+	
 	void PlayFireEffects(FVector TraceStart, FVector TraceEndPoint) const;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	class USkeletalMeshComponent* SkelMeshComp;
 
-	UPROPERTY(EditAnywhere, Category = "Params")
+	UPROPERTY(EditAnywhere, Category = "Stats")
 	float Range;
 
 	UPROPERTY(EditAnywhere, Category = "Stats")
@@ -33,6 +38,13 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Stats")
 	float HeadShotDamageMultipler;
+
+	UPROPERTY(EditAnywhere, Category = "Stats")
+	float FireRate;			// Delay between shots
+
+	FTimerHandle TH_FireRate;
+
+	float LastFireTime;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	TSubclassOf<UDamageType> DamageType;

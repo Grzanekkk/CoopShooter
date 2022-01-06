@@ -23,12 +23,23 @@ ASWeapon::ASWeapon()
 
 	Range = 10000.f;
 	Damage = 20.f;
+	FireRate = .3f;
 
 	HeadShotDamageMultipler = 2.f;
 }
 
-void ASWeapon::Fire()
+void ASWeapon::StartFire()
 {
+	GetWorld()->GetTimerManager().SetTimer(TH_FireRate, this, &ASWeapon::Fire, FireRate, true, 0.f);	// Sets up loop with delay 'FireRate' seconds between iterations
+}
+
+void ASWeapon::StopFire()
+{
+	GetWorld()->GetTimerManager().ClearTimer(TH_FireRate);
+}
+
+void ASWeapon::Fire(){
+	
 	AActor* AOwner = GetOwner();
 
 	FVector TraceStart;
@@ -37,10 +48,10 @@ void ASWeapon::Fire()
 
 	FVector ShotDirection = EyeRotation.Vector();
 
+	FVector TraceEnd = TraceStart + ShotDirection * Range;
+
 	// FVector MuzzleLocation = SkelMeshComp->GetSocketLocation(MuzzleSocketName);
 	// FVector MuzzleRotation = SkelMeshComp->GetSocketRotation(MuzzleSocketName).Vector();
-	
-	FVector TraceEnd = TraceStart + ShotDirection * Range;
 
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(AOwner);	// Ignoring owner collisions
@@ -83,6 +94,8 @@ void ASWeapon::Fire()
 	}
 	
 	PlayFireEffects(TraceStart, TraceEndPoint);
+
+	LastFireTime = GetWorld()->GetTimeSeconds();
 }
 
 void ASWeapon::PlayFireEffects(FVector TraceStart, FVector TraceEndPoint) const 

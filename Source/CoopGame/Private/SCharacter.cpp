@@ -57,16 +57,22 @@ void ASCharacter::Tick(float DeltaTime)
 
 	float NewFOV = FMath::FInterpTo(CameraComp->FieldOfView, TargetFOV, DeltaTime, ZoomInterpSpeed);
 
-	// UE_LOG(LogTemp, Warning, TEXT("NewFOV = %f"), NewFOV);
-
 	CameraComp->SetFieldOfView(NewFOV);
 }
 
-void ASCharacter::Fire()
+void ASCharacter::StartFire()
 {
 	if(CurrentWeapon)
 	{
-		CurrentWeapon->Fire();
+		CurrentWeapon->StartFire();
+	}
+}
+
+void ASCharacter::StopFire()
+{
+	if(CurrentWeapon)
+	{
+		CurrentWeapon->StopFire();
 	}
 }
 
@@ -122,7 +128,8 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ASCharacter::Jump);
 
-	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ASCharacter::Fire);
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ASCharacter::StartFire);
+	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ASCharacter::StopFire);
 
 	PlayerInputComponent->BindAction("Zoom", IE_Pressed, this, &ASCharacter::BeginZoom);
 	PlayerInputComponent->BindAction("Zoom", IE_Released, this, &ASCharacter::EndZoom);

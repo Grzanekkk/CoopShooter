@@ -48,7 +48,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "SFX")
 	class USoundCue* ExplosionCue;
 	
-
 	FTimerHandle TH_ExplosionDelay;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Components")
