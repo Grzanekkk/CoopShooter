@@ -34,7 +34,7 @@ AGrenadeProjectile::AGrenadeProjectile()
 	InitialLifeSpan = 1.0f;
 
 	// Setting default values
-	ExplosionDamage = DefaultDamageVaule;
+	ExplosionDamage = DefaultDamageValue;
 	ExplosionRadius = 50.f;
 	ExplosionDelay = 1.f;
 	DamageType = UDamageType::StaticClass();

@@ -21,6 +21,7 @@ public:
 	FORCEINLINE void SetExplosionDelay(float Delay) { ExplosionDelay = Delay; } 
 
 	FORCEINLINE void SetExplosionParticles(UParticleSystem* _ExplosionPartilces) { ExplosionParticles = _ExplosionPartilces; }
+	
 protected:
 	virtual void BeginPlay() override;
 
@@ -37,7 +38,7 @@ protected:
 	float ExplosionDamage;
 
 	UPROPERTY(VisibleAnywhere, Category = "Damage")
-	float DefaultDamageVaule = 50.f;
+	float DefaultDamageValue = 50.f;
 
 	UPROPERTY(VisibleAnywhere, Category = "Damage")
 	float ExplosionDelay;

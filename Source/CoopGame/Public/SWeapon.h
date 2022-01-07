@@ -28,9 +28,23 @@ protected:
 	virtual void Fire();
 	
 	void PlayFireEffects(FVector TraceStart, FVector TraceEndPoint) const;
+	
+	void Reload();
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	class USkeletalMeshComponent* SkelMeshComp;
+	UPROPERTY(EditAnywhere, Category = "Stats")
+	float ReloadTime;
+
+	UPROPERTY(EditAnywhere, Category = "Stats")
+	unsigned int LoadedAmmo;
+
+	UPROPERTY(EditAnywhere, Category = "Stats")
+	unsigned int AvailableAmmoCount;
+
+	UPROPERTY(EditAnywhere, Category = "Stats")
+	unsigned int MagazineCapacity;
+	
+	UPROPERTY(EditAnywhere, Category = "Stats")
+	unsigned int MaxAmmo;
 
 	UPROPERTY(EditAnywhere, Category = "Stats")
 	float Range;
@@ -39,9 +53,9 @@ protected:
 	float Damage;
 
 	UPROPERTY(EditAnywhere, Category = "Stats")
-	float HeadShotDamageMultipler;
+	float HeadShotDamageMultiplier;
 
-	UPROPERTY(EditAnywhere, Category = "Stats")
+	UPROPERTY(EditAnywhere, Category = "Stats", meta = (ClampMin = "0.05"))
 	float FireRate;			// Delay between shots
 
 	FTimerHandle TH_FireRate;
@@ -50,21 +64,24 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	TSubclassOf<UDamageType> DamageType;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	class USkeletalMeshComponent* SkelMeshComp;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	UParticleSystem* MuzzleFlashEffect;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
-	UParticleSystem* DefaultImpctEffect;
+	UParticleSystem* DefaultImpactEffect;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
-	UParticleSystem* BodyImpctEffect;
+	UParticleSystem* BodyImpactEffect;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	UParticleSystem* TraceEffect;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
-	TSubclassOf<UCameraShakeBase> FireCamerShake;
+	TSubclassOf<UCameraShakeBase> FireCameraShake;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")	// VisibleDefaultsOnly, we still show this value in the editor, but we need to set it ourself. It's helpful for designers.
 	FName MuzzleSocketName;

@@ -25,12 +25,17 @@ ASWeapon::ASWeapon()
 	Damage = 20.f;
 	FireRate = .3f;
 
-	HeadShotDamageMultipler = 2.f;
+	HeadShotDamageMultiplier = 2.f;
 }
 
 void ASWeapon::BeginPlay()
 {
 	Super::BeginPlay();
+	
+}
+
+void ASWeapon::Reload()
+{
 	
 }
 
@@ -78,7 +83,7 @@ void ASWeapon::Fire(){
 
 		float ActualDamage = Damage;
 		if(SurfaceType == SurfaceType2)	// IDK why macro is not working TODO
-			ActualDamage *= HeadShotDamageMultipler;
+			ActualDamage *= HeadShotDamageMultiplier;
 
 		UGameplayStatics::ApplyPointDamage(HitActor, ActualDamage, ShotDirection, Hit, AOwner->GetInstigatorController(), this, DamageType);
 		
@@ -87,10 +92,10 @@ void ASWeapon::Fire(){
 		{
 		case SurfaceType1:	// SURFACE_BODYDEFAULT, Macros are not working for some reason :(	TODO
 		case SurfaceType2:	// SURFACE_BODYVULNERABLE
-			SelectedEffect = BodyImpctEffect;
+			SelectedEffect = BodyImpactEffect;
 			break;
 		default:
-			SelectedEffect = DefaultImpctEffect;
+			SelectedEffect = DefaultImpactEffect;
 			break;
 		}
 		if(SelectedEffect)
@@ -133,7 +138,7 @@ void ASWeapon::PlayFireEffects(FVector TraceStart, FVector TraceEndPoint) const
 		APlayerController* PC = Cast<APlayerController>(AOwner->GetController());
 		if(PC)
 		{
-			PC->ClientStartCameraShake(FireCamerShake);
+			PC->ClientStartCameraShake(FireCameraShake);
 		}
 	}
 }
