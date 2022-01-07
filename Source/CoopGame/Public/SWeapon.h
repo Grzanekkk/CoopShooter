@@ -23,6 +23,8 @@ public:
 	void StopFire();
 	
 protected:
+    virtual void BeginPlay() override;
+
 	virtual void Fire();
 	
 	void PlayFireEffects(FVector TraceStart, FVector TraceEndPoint) const;

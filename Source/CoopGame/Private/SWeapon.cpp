@@ -28,9 +28,17 @@ ASWeapon::ASWeapon()
 	HeadShotDamageMultipler = 2.f;
 }
 
+void ASWeapon::BeginPlay()
+{
+	Super::BeginPlay();
+	
+}
+
 void ASWeapon::StartFire()
 {
-	GetWorld()->GetTimerManager().SetTimer(TH_FireRate, this, &ASWeapon::Fire, FireRate, true, 0.f);	// Sets up loop with delay 'FireRate' seconds between iterations
+	float FirstDelay = FMath::Max(LastFireTime + FireRate - GetWorld()->GetTimeSeconds(), 0.f);
+	
+	GetWorld()->GetTimerManager().SetTimer(TH_FireRate, this, &ASWeapon::Fire, FireRate, true, FirstDelay);	// Sets up loop with delay 'FireRate' seconds between iterations
 }
 
 void ASWeapon::StopFire()
