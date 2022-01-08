@@ -76,6 +76,14 @@ void ASCharacter::StopFire()
 	}
 }
 
+void ASCharacter::Reload()
+{
+	if(CurrentWeapon)
+	{
+		CurrentWeapon->BeginReload();
+	}
+}
+
 void ASCharacter::MoveForward(float Value)
 {
 	AddMovementInput(GetActorForwardVector() * Value); // Value is either 1.0 or -1.0
@@ -130,6 +138,8 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ASCharacter::StartFire);
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ASCharacter::StopFire);
+
+	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &ASCharacter::Reload);
 
 	PlayerInputComponent->BindAction("Zoom", IE_Pressed, this, &ASCharacter::BeginZoom);
 	PlayerInputComponent->BindAction("Zoom", IE_Released, this, &ASCharacter::EndZoom);

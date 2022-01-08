@@ -23,6 +23,8 @@ protected:
 	
 	void StopFire();
 
+	void Reload();
+
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	class ASWeapon* CurrentWeapon;
 

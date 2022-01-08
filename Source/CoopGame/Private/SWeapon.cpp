@@ -24,6 +24,11 @@ ASWeapon::ASWeapon()
 	Range = 10000.f;
 	Damage = 20.f;
 	FireRate = .3f;
+	
+	MaxAmmo = 100;
+	MagazineCapacity = 20;
+
+	ReloadTime = 1.2f;
 
 	HeadShotDamageMultiplier = 2.f;
 }
@@ -31,16 +36,34 @@ ASWeapon::ASWeapon()
 void ASWeapon::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	AvailableAmmo = MaxAmmo / 2;
+	LoadedAmmo = MagazineCapacity;
+}
+
+void ASWeapon::BeginReload()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Reloading!"));
+
+	GetWorld()->GetTimerManager().SetTimer(TH_ReloadTimer, this, &ASWeapon::Reload, ReloadTime);
 }
 
 void ASWeapon::Reload()
 {
+	int AmmoToReload = MagazineCapacity - LoadedAmmo;
+	AmmoToReload = FMath::Min(AmmoToReload, AvailableAmmo);
 	
+	LoadedAmmo += AmmoToReload;
+	AvailableAmmo -= AmmoToReload;
+
+	UE_LOG(LogTemp, Warning, TEXT("Reloaded!"));
 }
 
 void ASWeapon::StartFire()
 {
+	if(LoadedAmmo <= 0)
+		return;
+	
 	float FirstDelay = FMath::Max(LastFireTime + FireRate - GetWorld()->GetTimeSeconds(), 0.f);
 	
 	GetWorld()->GetTimerManager().SetTimer(TH_FireRate, this, &ASWeapon::Fire, FireRate, true, FirstDelay);	// Sets up loop with delay 'FireRate' seconds between iterations
@@ -51,7 +74,10 @@ void ASWeapon::StopFire()
 	GetWorld()->GetTimerManager().ClearTimer(TH_FireRate);
 }
 
-void ASWeapon::Fire(){
+void ASWeapon::Fire()
+{
+	if(LoadedAmmo <= 0)
+		return;
 	
 	AActor* AOwner = GetOwner();
 
@@ -109,6 +135,8 @@ void ASWeapon::Fire(){
 	PlayFireEffects(TraceStart, TraceEndPoint);
 
 	LastFireTime = GetWorld()->GetTimeSeconds();
+
+	LoadedAmmo--;
 }
 
 void ASWeapon::PlayFireEffects(FVector TraceStart, FVector TraceEndPoint) const 

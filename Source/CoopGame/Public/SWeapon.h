@@ -16,35 +16,40 @@ class COOPGAME_API ASWeapon : public AActor
 public:	
 	ASWeapon();
 	
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	UFUNCTION(BlueprintCallable, Category = "Actions")
 	void StartFire();
 
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	UFUNCTION(BlueprintCallable, Category = "Actions")
 	void StopFire();
+
+	UFUNCTION(BlueprintCallable, Category = "Actions")
+	void BeginReload();
 	
 protected:
     virtual void BeginPlay() override;
 
 	virtual void Fire();
+
+	void Reload();
 	
 	void PlayFireEffects(FVector TraceStart, FVector TraceEndPoint) const;
-	
-	void Reload();
 
 	UPROPERTY(EditAnywhere, Category = "Stats")
 	float ReloadTime;
 
-	UPROPERTY(EditAnywhere, Category = "Stats")
-	unsigned int LoadedAmmo;
+	FTimerHandle TH_ReloadTimer;
 
 	UPROPERTY(EditAnywhere, Category = "Stats")
-	unsigned int AvailableAmmoCount;
+	int LoadedAmmo;
+
+	UPROPERTY(VisibleAnywhere, Category = "Stats")
+	int AvailableAmmo;
 
 	UPROPERTY(EditAnywhere, Category = "Stats")
-	unsigned int MagazineCapacity;
+	int MagazineCapacity;
 	
 	UPROPERTY(EditAnywhere, Category = "Stats")
-	unsigned int MaxAmmo;
+	int MaxAmmo;
 
 	UPROPERTY(EditAnywhere, Category = "Stats")
 	float Range;
