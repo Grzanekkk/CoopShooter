@@ -61,12 +61,15 @@ void ASWeapon::Reload()
 
 void ASWeapon::StartFire()
 {
-	if(LoadedAmmo <= 0)
-		return;
-	
-	float FirstDelay = FMath::Max(LastFireTime + FireRate - GetWorld()->GetTimeSeconds(), 0.f);
-	
-	GetWorld()->GetTimerManager().SetTimer(TH_FireRate, this, &ASWeapon::Fire, FireRate, true, FirstDelay);	// Sets up loop with delay 'FireRate' seconds between iterations
+	if(LoadedAmmo > 0)
+	{
+		float FirstDelay = FMath::Max(LastFireTime + FireRate - GetWorld()->GetTimeSeconds(), 0.f);
+		GetWorld()->GetTimerManager().SetTimer(TH_FireRate, this, &ASWeapon::Fire, FireRate, true, FirstDelay);	// Sets up loop with delay 'FireRate' seconds between iterations
+	}
+	else
+	{
+		BeginReload();
+	}
 }
 
 void ASWeapon::StopFire()
