@@ -169,7 +169,8 @@ void ASWeapon::PlayFireEffects(FVector TraceStart, FVector TraceEndPoint) const
 		APlayerController* PC = Cast<APlayerController>(AOwner->GetController());
 		if(PC)
 		{
-			PC->ClientStartCameraShake(FireCameraShake);
+			PC->ClientStartCameraShake(FireCameraShake);	// FIX TODO
+			//UE_LOG(LogTemp, Warning, TEXT("Shaking camera."));
 		}
 	}
 }

@@ -25,6 +25,9 @@ protected:
 
 	void Reload();
 
+	UFUNCTION()
+	void OnHealthChanged(class UHealthComponent* HealthComponent, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
+
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	class ASWeapon* CurrentWeapon;
 
@@ -54,6 +57,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	class USpringArmComponent* SpringArmComp;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	class UHealthComponent* HealthComp;
+
 	bool bWantsToZoom;
 	
 	float DefaultFOV;
@@ -63,6 +69,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Camera")
 	float ZoomInterpSpeed;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Params")
+	bool bDied;
 
 
 public:	

@@ -9,6 +9,7 @@
 #include "CoopGame/CoopGame.h"
 #include "GameFramework/PawnMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Components/HealthComponent.h"
 
 
 // Sets default values
@@ -22,6 +23,8 @@ ASCharacter::ASCharacter()
 	SpringArmComp->SetupAttachment(RootComponent);
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_WEAPON, ECR_Ignore);
+
+	HealthComp = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
 	
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraCompontent"));
 	CameraComp->SetupAttachment(SpringArmComp);
@@ -50,6 +53,8 @@ void ASCharacter::BeginPlay()
 		CurrentWeapon->SetOwner(this);
 		CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponSocketName);
 	}
+
+	HealthComp->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChanged);
 }
 
 // Called every frame
@@ -88,11 +93,24 @@ void ASCharacter::Reload()
 	}
 }
 
+void ASCharacter::OnHealthChanged(UHealthComponent* HealthComponent, float Health, float HealthDelta,
+	const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
+{
+	if( Health <= 0.f)
+	{
+		// Dead
+
+		bDied = true;
+		
+		GetMovementComponent()->StopMovementImmediately();
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+}
+
 void ASCharacter::MoveForward(float Value)
 {
 	AddMovementInput(GetActorForwardVector() * Value); // Value is either 1.0 or -1.0
 }
-
 
 void ASCharacter::MoveRight(float Value)
 {
