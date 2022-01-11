@@ -70,7 +70,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Camera")
 	float ZoomInterpSpeed;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Params")
+	UPROPERTY(BlueprintReadOnly, Category = "State")
 	bool bDied;
 
 
