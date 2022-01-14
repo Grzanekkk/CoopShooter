@@ -14,9 +14,6 @@ class COOPGAME_API AExplosiveBarrel : public AActor
 public:	
 	AExplosiveBarrel();
 
-	UPROPERTY(EditDefaultsOnly, Category = "Properties")
-	float Damage;
-
 protected:
 	virtual void BeginPlay() override;
 
@@ -25,6 +22,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	class UStaticMeshComponent* MeshComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	class URadialForceComponent* RadialForceComp;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Materaials")
 	class UMaterial* DefaultMaterial;
@@ -37,8 +37,21 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "FX")
 	class UParticleSystem* ExplosionParticles; 
+
+	UPROPERTY(EditAnywhere, Category = "Properties")
+	float Damage;
+
+	UPROPERTY(EditAnywhere, Category = "Properties")
+	float ExplosionRadius;
+
+	UPROPERTY(EditAnywhere, Category = "Properties")
+	float BarrelBoostImpulse;
 	
 	bool bLitOnFire;
+
+	bool bExploded;
+
+	TSubclassOf<UDamageType> ExplosionDamageType;
 
 	UFUNCTION()
 	void OnHealthChanged(class UHealthComponent* HealthComponent, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
