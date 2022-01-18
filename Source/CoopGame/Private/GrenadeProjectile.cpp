@@ -66,7 +66,7 @@ void AGrenadeProjectile::Explode()
 {
 	TArray<AActor*> IgnoreActors;	// TODO
 	
-	UGameplayStatics::ApplyRadialDamage(GetWorld(), ExplosionDamage, GetActorLocation(), ExplosionRadius, DamageType, IgnoreActors);
+	UGameplayStatics::ApplyRadialDamage(GetWorld(), ExplosionDamage, GetActorLocation(), ExplosionRadius, DamageType, IgnoreActors, this, 0, true);
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionParticles, GetActorLocation());
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), ExplosionCue, GetActorLocation());
 
