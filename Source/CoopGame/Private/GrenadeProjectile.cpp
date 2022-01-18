@@ -4,25 +4,28 @@
 #include "GrenadeProjectile.h"
 
 #include "DrawDebugHelpers.h"
+#include "ExplosiveBarrel.h"
 #include "Components/SphereComponent.h"
 #include "Components/MeshComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
+#include "SCharacter.h"
+
 
 AGrenadeProjectile::AGrenadeProjectile()
 {
+	PrimaryActorTick.bCanEverTick = true;
+	
 	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
 	CollisionComp->InitSphereRadius(5.0f);
 	CollisionComp->SetCollisionProfileName("Projectile");
-	//CollisionComp->OnComponentHit.AddDynamic(this, &AGrenadeProjectile::OnHit);	// set up a notification for when this component hits something blocking
-	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &AGrenadeProjectile::OnComponentBeginOverlap);
 	CollisionComp->CanCharacterStepUpOn = ECB_No;
-	
+	CollisionComp->SetSimulatePhysics(true);
 	RootComponent = CollisionComp;
 
 	MeshComp = CreateDefaultSubobject<UMeshComponent>(TEXT("MeshComp"));
-	//MeshComp->SetupAttachment(CollisionComp);
+	//MeshComp->SetupAttachment(RootComponent);
 	
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
 	ProjectileMovement->UpdatedComponent = CollisionComp;
@@ -31,7 +34,7 @@ AGrenadeProjectile::AGrenadeProjectile()
 	ProjectileMovement->bRotationFollowsVelocity = true;
 	ProjectileMovement->bShouldBounce = true;
 	
-	InitialLifeSpan = 1.0f;
+	//InitialLifeSpan = 1.0f;
 
 	// Setting default values
 	ExplosionDamage = DefaultDamageValue;
@@ -40,11 +43,47 @@ AGrenadeProjectile::AGrenadeProjectile()
 	DamageType = UDamageType::StaticClass();
 }
 
+void AGrenadeProjectile::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	CollisionComp->OnComponentHit.AddDynamic(this, &AGrenadeProjectile::OnHit);	// set up a notification for when this component hits something blocking
+}
+
+void AGrenadeProjectile::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	ExplosionDelay -= DeltaSeconds;
+
+	if(ExplosionDelay <= 0)
+	{
+		Explode();
+	}
+}
+
+void AGrenadeProjectile::Explode()
+{
+	TArray<AActor*> IgnoreActors;	// TODO
+	
+	UGameplayStatics::ApplyRadialDamage(GetWorld(), ExplosionDamage, GetActorLocation(), ExplosionRadius, DamageType, IgnoreActors);
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionParticles, GetActorLocation());
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), ExplosionCue, GetActorLocation());
+
+	DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 8, FColor::Orange, false, 3.f);
+	
+	Destroy();
+}
+
 void AGrenadeProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	FVector NormalImpulse, const FHitResult& Hit)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Projectile Colliding"));
-	Explode();
+	
+	if(OtherActor->IsA(ASCharacter::StaticClass()) || OtherActor->IsA(AExplosiveBarrel::StaticClass()))
+	{
+		Explode();
+	}
 }
 
 void AGrenadeProjectile::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
@@ -52,24 +91,4 @@ void AGrenadeProjectile::OnComponentBeginOverlap(UPrimitiveComponent* Overlapped
 {
 	UE_LOG(LogTemp, Warning, TEXT("Projectile Overlapping"));
 	Explode();
-}
-
-void AGrenadeProjectile::BeginPlay()
-{
-	Super::BeginPlay();
-
-	GetWorldTimerManager().SetTimer(TH_ExplosionDelay, this,  &AGrenadeProjectile::Explode, ExplosionDelay);
-}
-
-void AGrenadeProjectile::Explode()
-{
-	TArray<AActor*> IgnoredActors;	// TODO
-	
-	UGameplayStatics::ApplyRadialDamage(GetWorld(), ExplosionDamage, GetActorLocation(), ExplosionRadius, DamageType, IgnoredActors);
-	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionParticles, GetActorLocation());
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), ExplosionCue, GetActorLocation());
-
-	DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 8, FColor::Orange, false, 3.f);
-	
-	Destroy();
 }

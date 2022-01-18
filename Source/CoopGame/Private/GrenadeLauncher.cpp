@@ -15,7 +15,7 @@ AGrenadeLauncher::AGrenadeLauncher()
 	MuzzleSocketName = "MuzzleSocket";
 
 	Damage = 50.f;
-	ExplosionRadius = 50.f;
+	ExplosionRadius = 100.f;
 	ExplosionDelay = 1.f;
 }
 

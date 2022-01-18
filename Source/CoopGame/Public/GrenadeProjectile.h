@@ -11,7 +11,9 @@ class COOPGAME_API AGrenadeProjectile : public AActor
 {
 	GENERATED_BODY()
 	
-public:	
+public:
+	virtual void Tick(float DeltaSeconds) override;
+	
 	AGrenadeProjectile();
 	
 	FORCEINLINE void SetDamage(float DamageVaule) { if(DamageVaule > 0 && DamageVaule < 100000) { ExplosionDamage = DamageVaule; } }
@@ -20,7 +22,7 @@ public:
 
 	FORCEINLINE void SetExplosionDelay(float Delay) { ExplosionDelay = Delay; } 
 
-	FORCEINLINE void SetExplosionParticles(UParticleSystem* _ExplosionPartilces) { ExplosionParticles = _ExplosionPartilces; }
+	FORCEINLINE void SetExplosionParticles(UParticleSystem* _ExplosionParticles) { ExplosionParticles = _ExplosionParticles; }
 	
 protected:
 	virtual void BeginPlay() override;
@@ -48,8 +50,6 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "SFX")
 	class USoundCue* ExplosionCue;
-	
-	FTimerHandle TH_ExplosionDelay;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Components")
 	class USphereComponent* CollisionComp;
