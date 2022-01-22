@@ -17,6 +17,8 @@ AGrenadeLauncher::AGrenadeLauncher()
 	Damage = 50.f;
 	ExplosionRadius = 100.f;
 	ExplosionDelay = 1.f;
+
+	SetReplicates(true);
 }
 
 void AGrenadeLauncher::Fire()

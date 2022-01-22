@@ -30,6 +30,8 @@ AExplosiveBarrel::AExplosiveBarrel()
 	Damage = 100;
 	ExplosionRadius = 200;
 	BarrelBoostImpulse = 400;
+
+	SetReplicates(true);
 }
 
 // Called when the game starts or when spawned

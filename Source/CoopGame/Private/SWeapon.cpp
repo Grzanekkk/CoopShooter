@@ -31,6 +31,8 @@ ASWeapon::ASWeapon()
 	ReloadTime = 1.2f;
 
 	HeadShotDamageMultiplier = 2.f;
+
+	SetReplicates(true);
 }
 
 void ASWeapon::BeginPlay()
