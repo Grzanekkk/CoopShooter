@@ -81,6 +81,12 @@ void ASWeapon::StopFire()
 
 void ASWeapon::Fire()
 {
+	if(GetLocalRole() < ROLE_Authority)
+	{
+		ServerFire();
+		return;
+	}
+	
 	if(LoadedAmmo <= 0)
 		return;
 	
@@ -142,6 +148,16 @@ void ASWeapon::Fire()
 	LastFireTime = GetWorld()->GetTimeSeconds();
 
 	LoadedAmmo--;
+}
+
+void ASWeapon::ServerFire_Implementation()
+{
+	Fire();
+}
+
+bool ASWeapon::ServerFire_Validate()
+{
+	return true;
 }
 
 void ASWeapon::PlayFireEffects(FVector TraceStart, FVector TraceEndPoint) const 

@@ -7,6 +7,16 @@
 #include "Camera/CameraShake.h"
 #include "SWeapon.generated.h"
 
+USTRUCT()
+struct FHitScanTrace
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	FVector_NetQuantize TraceFrom;
+	UPROPERTY()
+	FVector_NetQuantize TraceTo;
+};
 
 UCLASS()
 class COOPGAME_API ASWeapon : public AActor
@@ -28,7 +38,11 @@ public:
 protected:
     virtual void BeginPlay() override;
 
+	//UFUNCTION(Server, Raliable)
 	virtual void Fire();
+	
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerFire();
 
 	void Reload();
 	
@@ -93,4 +107,7 @@ protected:
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
 	FName TraceTargetName;
+
+	UPROPERTY(ReplicatedUsing=OnRep_HitScanTrace)
+	FHitScanTrace HitScanTrace;
 };

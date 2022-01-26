@@ -189,5 +189,5 @@ void ASCharacter::GetLifetimeReplicatedProps( TArray< class FLifetimeProperty > 
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(ASCharacter, CurrentWeapon);
+	DOREPLIFETIME(ASCharacter, CurrentWeapon);	// Replicates this variable to all relavent clients
 }
