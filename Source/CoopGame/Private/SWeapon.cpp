@@ -140,10 +140,17 @@ void ASWeapon::Fire()
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SelectedEffect, Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
 		}
 
+
+
 		TraceEndPoint = Hit.ImpactPoint;
 	}
+
+	if(GetLocalRole() == ROLE_Authority)
+	{
+		HitScanTrace.TraceTo = TraceEndPoint;
+	}
 	
-	PlayFireEffects(TraceStart, TraceEndPoint);
+
 
 	LastFireTime = GetWorld()->GetTimeSeconds();
 
@@ -191,4 +198,9 @@ void ASWeapon::PlayFireEffects(FVector TraceStart, FVector TraceEndPoint) const
 			//UE_LOG(LogTemp, Warning, TEXT("Shaking camera."));
 		}
 	}
+}
+
+void ASWeapon::OnRep_HitScanTrace()
+{
+	PlayFireEffects(TraceStart, TraceEndPoint);
 }
