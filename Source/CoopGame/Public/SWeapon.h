@@ -13,7 +13,8 @@ struct FHitScanTrace
 	GENERATED_BODY()
 
 	UPROPERTY()
-	FVector_NetQuantize TraceFrom;
+	TEnumAsByte<EPhysicalSurface> SurfaceType;
+	
 	UPROPERTY()
 	FVector_NetQuantize TraceTo;
 };
@@ -46,13 +47,14 @@ protected:
 
 	void Reload();
 	
-	void PlayFireEffects(FVector TraceStart, FVector TraceEndPoint) const;
+	void PlayFireEffects(FVector TraceStart, FVector TraceEnd) const;
 
 	UPROPERTY(EditAnywhere, Category = "Stats")
 	float ReloadTime;
 
 	FTimerHandle TH_ReloadTimer;
-
+	
+	// Stats
 	UPROPERTY(EditAnywhere, Category = "Stats")
 	int LoadedAmmo;
 
@@ -83,10 +85,15 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	TSubclassOf<UDamageType> DamageType;
-	
+
+	// Mesh
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	class USkeletalMeshComponent* SkelMeshComp;
 
+	// Particles
+
+	void PlayImpactEffects(EPhysicalSurface SurfaceType, FVector ImpactPoint);
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	UParticleSystem* MuzzleFlashEffect;
 
@@ -110,6 +117,9 @@ protected:
 
 	UPROPERTY(ReplicatedUsing=OnRep_HitScanTrace)
 	FHitScanTrace HitScanTrace;
+	
+	FVector TraceEndPoint;
+	FVector TraceStartPoint;
 
 	UFUNCTION()
 	void OnRep_HitScanTrace();

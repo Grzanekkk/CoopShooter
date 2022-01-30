@@ -8,6 +8,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
+#include "Net/UnrealNetwork.h"
 
 static int32 DebugWeaponDrawing = 0;
 FAutoConsoleVariableRef CVARDebugWeaponDrawing (TEXT("COOP.DebugWeapons"), DebugWeaponDrawing, TEXT("Draw Debug Lines for Weapons"), ECVF_Cheat);
@@ -33,6 +34,9 @@ ASWeapon::ASWeapon()
 	HeadShotDamageMultiplier = 2.f;
 
 	SetReplicates(true);
+
+	NetUpdateFrequency = 60.f;
+	MinNetUpdateFrequency = 30.f;
 }
 
 void ASWeapon::BeginPlay()
@@ -92,16 +96,12 @@ void ASWeapon::Fire()
 	
 	AActor* AOwner = GetOwner();
 
-	FVector TraceStart;
+	TraceStartPoint = FVector::ZeroVector;
 	FRotator EyeRotation;
-	AOwner->GetActorEyesViewPoint(TraceStart, EyeRotation);
+	AOwner->GetActorEyesViewPoint(TraceStartPoint, EyeRotation);
 
 	FVector ShotDirection = EyeRotation.Vector();
-
-	FVector TraceEnd = TraceStart + ShotDirection * Range;
-
-	// FVector MuzzleLocation = SkelMeshComp->GetSocketLocation(MuzzleSocketName);
-	// FVector MuzzleRotation = SkelMeshComp->GetSocketRotation(MuzzleSocketName).Vector();
+	FVector TraceEnd = TraceStartPoint + ShotDirection * Range;
 
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(AOwner);	// Ignoring owner collisions
@@ -109,14 +109,16 @@ void ASWeapon::Fire()
 	QueryParams.bTraceComplex = true;	// Checks for every triangle while hitting target. This helps witch head shot damage
 	QueryParams.bReturnPhysicalMaterial = true;
 
-	FVector TraceEndPoint = TraceEnd;
+	TraceEndPoint = TraceEnd;
+	EPhysicalSurface SurfaceType = SurfaceType_Default;
 	
 	FHitResult Hit;
-	if(GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, COLLISION_WEAPON, QueryParams))
+	if(GetWorld()->LineTraceSingleByChannel(Hit, TraceStartPoint, TraceEnd, COLLISION_WEAPON, QueryParams))
 	{
 		AActor* HitActor = Hit.GetActor();
+		TraceEndPoint = Hit.ImpactPoint;
 		
-		EPhysicalSurface SurfaceType = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());
+		SurfaceType = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());
 
 		float ActualDamage = Damage;
 		if(SurfaceType == SurfaceType2)	// IDK why macro is not working TODO
@@ -124,34 +126,15 @@ void ASWeapon::Fire()
 
 		UGameplayStatics::ApplyPointDamage(HitActor, ActualDamage, ShotDirection, Hit, AOwner->GetInstigatorController(), this, DamageType);
 		
-		UParticleSystem* SelectedEffect;
-		switch (SurfaceType)
-		{
-		case SurfaceType1:	// SURFACE_BODYDEFAULT, Macros are not working for some reason :(	TODO
-		case SurfaceType2:	// SURFACE_BODYVULNERABLE
-			SelectedEffect = BodyImpactEffect;
-			break;
-		default:
-			SelectedEffect = DefaultImpactEffect;
-			break;
-		}
-		if(SelectedEffect)
-		{
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SelectedEffect, Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
-		}
-
-
-
-		TraceEndPoint = Hit.ImpactPoint;
+		PlayImpactEffects(SurfaceType, TraceEndPoint);
 	}
 
 	if(GetLocalRole() == ROLE_Authority)
 	{
 		HitScanTrace.TraceTo = TraceEndPoint;
+		HitScanTrace.SurfaceType = SurfaceType;
 	}
 	
-
-
 	LastFireTime = GetWorld()->GetTimeSeconds();
 
 	LoadedAmmo--;
@@ -167,11 +150,11 @@ bool ASWeapon::ServerFire_Validate()
 	return true;
 }
 
-void ASWeapon::PlayFireEffects(FVector TraceStart, FVector TraceEndPoint) const 
+void ASWeapon::PlayFireEffects(FVector TraceStart, FVector TraceEnd) const 
 {
 	if(DebugWeaponDrawing != 0)
 	{
-		DrawDebugLine(GetWorld(), TraceStart, TraceEndPoint, FColor::Cyan, false, 1.f, 0, 1.f);
+		DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Cyan, false, 1.f, 0, 1.f);
 	}
 
 	if(MuzzleFlashEffect)
@@ -184,7 +167,7 @@ void ASWeapon::PlayFireEffects(FVector TraceStart, FVector TraceEndPoint) const
 		UParticleSystemComponent* TracerComp = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TraceEffect, TraceStart);
 		if(TracerComp)
 		{
-			TracerComp->SetVectorParameter(TraceTargetName, TraceEndPoint);
+			TracerComp->SetVectorParameter(TraceTargetName, TraceEnd);
 		}
 	}
 
@@ -200,7 +183,40 @@ void ASWeapon::PlayFireEffects(FVector TraceStart, FVector TraceEndPoint) const
 	}
 }
 
+void ASWeapon::PlayImpactEffects(EPhysicalSurface SurfaceType, FVector ImpactPoint)
+{
+	UParticleSystem* SelectedEffect;
+	switch (SurfaceType)
+	{
+	case SurfaceType1:	// SURFACE_BODYDEFAULT, Macros are not working for some reason :(	TODO
+	case SurfaceType2:	// SURFACE_BODYVULNERABLE
+		SelectedEffect = BodyImpactEffect;
+		break;
+	default:
+		SelectedEffect = DefaultImpactEffect;
+		break;
+	}
+		
+	if(SelectedEffect)
+	{
+		FVector MuzzleLocation = SkelMeshComp->GetSocketLocation(MuzzleSocketName);
+		FVector ShotDirection = ImpactPoint - MuzzleLocation;
+		ShotDirection.Normalize();
+		
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SelectedEffect, ImpactPoint, ShotDirection.Rotation());
+	}
+}
+
 void ASWeapon::OnRep_HitScanTrace()
 {
-	PlayFireEffects(TraceStart, TraceEndPoint);
+	PlayFireEffects(TraceStartPoint, TraceEndPoint);
+	PlayImpactEffects(HitScanTrace.SurfaceType, HitScanTrace.TraceTo);
 }
+
+void ASWeapon::GetLifetimeReplicatedProps( TArray< class FLifetimeProperty > & OutLifetimeProps ) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(ASWeapon, HitScanTrace, COND_SkipOwner);
+}
+
